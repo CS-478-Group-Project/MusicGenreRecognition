@@ -1,0 +1,2 @@
+youtube_dl>=2018.11.7
+requests>=2.20.0

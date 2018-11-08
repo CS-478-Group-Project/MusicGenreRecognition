@@ -1,0 +1,41 @@
+{
+    "default_count":50,
+    "items": [
+
+        {
+            "playlist_id":"PL94D12C64C0DCE72F",
+            "genre":"pop",
+            "num":35
+        },
+        {
+            "playlist_id":"PL5lBiD39SHZbLHZzYC2luGaSlLG9a7dzu",
+            "genre":"pop",
+            "num":15
+        },
+        {
+            "playlist_id":"PLr0CT5anc-eu8rS9n93DcmIA9Ms0gfZEe",
+            "genre":"electronic",
+            "num":-1
+        },
+        {
+            "playlist_id":"PLw-VjHDlEOgsIgak3vJ7mrcy-OscZ6OAs",
+            "genre":"rap",
+            "num":-1
+        },
+        {
+            "playlist_id":"PLDZIMJooKojCrAwXNVEpz1iIHGg0voE5m",
+            "genre":"folk",
+            "num":-1
+        },
+        {
+            "playlist_id":"PLZN_exA7d4RVmCQrG5VlWIjMOkMFZVVOc",
+            "genre":"rock",
+            "num":-1
+        },
+        {
+            "playlist_id":"PLRb-5mC4V_Lop8KLXqSqMv4_mqw5M9jjW",
+            "genre":"classical",
+            "num":-1
+        }
+    ]
+}
