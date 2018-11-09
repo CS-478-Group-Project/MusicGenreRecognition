@@ -91,7 +91,7 @@ for playlist in config['items']:
     os.chdir(genre)
 
     print("Beginning dowload of playlist: " +  playlist_id + " [" + genre + "]\n")
-
+  
     # Download each item from the playlist
     downloadPlaylist(json_data, num_songs)
 
