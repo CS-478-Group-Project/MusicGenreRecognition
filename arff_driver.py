@@ -8,7 +8,11 @@ import Chandra
 import Gibson
 
 
-
+'''
+Writes the header data for the arff file
+Most of this header data isn't that important, it's really only for human readability
+Nevertheless, we have a cool function here to handle the job
+'''
 def write_header():
     with open(os.path.join(OUTPUT_DIR ,OUTPUT_FILE), 'w') as fout:
         fout.write("% 1. Title: Music database for genre classification.\n%\n%\n%")
@@ -51,6 +55,18 @@ def append_instances(instances, genre):
 
     return
 
+def output_data(attributes, instance_data, genres):
+    # Make sure our output directory is safe
+    if not os.path.isdir(OUTPUT_DIR):
+        os.mkdir(OUTPUT_DIR)
+
+    write_header()
+    write_attributes(attributes)
+
+    # Main output loop
+    for genre in genres:
+        append_instances(instance_data[genre], genre)
+
 def get_attributes(extraction_modules):
     # Define a list of attributes
     attributes = []
@@ -84,8 +100,8 @@ def extract_instance(sample, data, sample_rate, extraction_modules):
 
 
 # Define some values
-OUTPUT_DIR = 'output'
-OUTPUT_FILE = 'music.arff'
+OUTPUT_DIR = 'output'           # Output directory
+OUTPUT_FILE = 'music.arff'      # Specific file name we're writing to
 
 SONG_DIR = ['res', 'songs']     # Where the subfolders for each genre are stored
 
@@ -107,6 +123,7 @@ extraction_modules = [Andrew(), Jacob(), Chandra(), Gibson()]
 attributes = get_attributes(extraction_modules)
 
 
+# The following could be refactored a bit more, but I kind of just want to test things
 
 # Feature extraction loop
 # Iterate over each genre
@@ -139,11 +156,6 @@ for genre in genres:
 
 
 # Time to do some output!
-write_header()
-write_attributes(attributes)
-
-# Main output loop
-for genre in genres:
-    append_instances(instance_data[genre], genre)
+output_data(attributes, instance_data, genres)
 
 # Done lol
