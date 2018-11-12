@@ -84,7 +84,7 @@ def get_attributes(extraction_modules):
     attributes = []
 
     for module in extraction_modules:
-        attributes.extend(str(module).split())  # Add the module-defined attributes to our list
+        attributes.extend(str(module).split(','))  # Add the module-defined attributes to our list
 
     return attributes
 
@@ -113,7 +113,7 @@ def extract_instance(sample, data, sample_rate, extraction_modules):
     # For every module
     for module in extraction_modules:
         # Extend our list with the data from each module
-        features.extend(module.extract(sample, data))   # Also want to add sample rate here... will be needed for many things
+        features.extend(module.extract(sample, data, sample_rate))   # Also want to add sample rate here... will be needed for many things
 
     return features
 
@@ -126,7 +126,7 @@ OUTPUT_FILE = 'music.arff'      # Specific file name we're writing to
 SONG_DIR = ['res', 'songs']     # Where the subfolders for each genre are stored
 
 SAMPLE_LENGTH = 8               # Length of samples to be used
-NUM_SAMPLES = 1                 # How many samples should be extracted from each file
+NUM_SAMPLES = 5                 # How many samples should be extracted from each file
 
 # Define genres
 genres = ['pop', 'electronic', 'rap', 'folk', 'rock', 'classical']
