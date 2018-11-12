@@ -2,10 +2,10 @@ import os
 import random
 from scipy.io import wavfile
 from scipy.fftpack import fft,fftfreq   # Likely won't be needed
-import Andrew
-import Jacob
-import Chandra
-import Gibson
+from Andrew import Andrew
+from Jacob import Jacob
+from Chandra import Chandra
+from Gibson import Gibson
 
 
 '''
@@ -15,7 +15,7 @@ Nevertheless, we have a cool function here to handle the job
 '''
 def write_header():
     with open(os.path.join(OUTPUT_DIR ,OUTPUT_FILE), 'w') as fout:
-        fout.write("% 1. Title: Music database for genre classification.\n%\n%\n%")
+        fout.write("% 1. Title: Music database for genre classification.\n%\n%\n%\n")
         fout.write("@relation music\n\n")
     return
 
@@ -33,11 +33,11 @@ def write_attributes(attributes):
 
         # Write the output class data
         fout.write("@attribute genre {")
-        fout.write(','.join(genres))
+        fout.write(', '.join(genres))
         fout.write("}\n\n")
 
         # Start the data block
-        fout.write("@data")
+        fout.write("@data\n")
 
     return
 
@@ -49,9 +49,9 @@ Assumes header data has already been written
 def append_instances(instances, genre):
     # Open output file in append mode.
     with open(os.path.join(OUTPUT_DIR ,OUTPUT_FILE), 'a') as fout:
-        fout.write(','.join(instances))     # Write the data
-        fout.write(',' + genre)             # Give output class
-        fout.wrtie('\n')                    # new line
+        for instance in instances:
+            fout.write(', '.join(str(feature_val) for feature_val in instance))  # Write the data
+            fout.write(', ' + genre + '\n')                                      # Give output class
 
     return
 
@@ -81,7 +81,7 @@ def get_random_sample(data, sample_rate):
     # Find how long the song is in seconds
     total_length = data.shape[0] / sample_rate
     # Pick a random starting time in seconds
-    start_time = random.randint(0, total_length - SAMPLE_LENGTH)
+    start_time = random.randint(0, int(total_length - SAMPLE_LENGTH))
 
     # Feed back the data as a sample given our random start time and constant sample length
     return data[start_time * sample_rate:(start_time + SAMPLE_LENGTH) * sample_rate]
@@ -106,7 +106,7 @@ OUTPUT_FILE = 'music.arff'      # Specific file name we're writing to
 SONG_DIR = ['res', 'songs']     # Where the subfolders for each genre are stored
 
 SAMPLE_LENGTH = 8               # Length of samples to be used
-NUM_SAMPLES = 5                 # How many samples should be extracted from each file
+NUM_SAMPLES = 1                 # How many samples should be extracted from each file
 
 # Define genres
 genres = ['pop', 'electronic', 'rap', 'folk', 'rock', 'classical']
@@ -133,12 +133,12 @@ for genre in genres:
     # Link to the current resource directory
     current_dir = os.path.join(*SONG_DIR, genre)
 
-    if not os.path.isdir(current_dir) continue   # Skip this genre if not defined
+    if not os.path.isdir(current_dir): continue   # Skip this genre if not defined
 
     # Loop over every file in the song directory
-    for file in os.listdir(current_dir)
+    for file in os.listdir(current_dir):
         # Read in audio data and sanitize
-        sample_rate, data = wavfile.read(file)
+        sample_rate, data = wavfile.read(os.path.join(*SONG_DIR, genre, file))
 
         # Convert to mono
         data = data[:,0]
@@ -146,6 +146,9 @@ for genre in genres:
         for i in range(NUM_SAMPLES):
             # Obtain a random sample
             sample = get_random_sample(data, sample_rate)
+
+            # Sanity check on sample length
+            assert (sample.shape[0] == (SAMPLE_LENGTH * sample_rate))
 
             current_instances.append(extract_instance(sample, data, sample_rate, extraction_modules))
         # End sample loop
