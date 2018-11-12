@@ -55,6 +55,13 @@ def append_instances(instances, genre):
 
     return
 
+'''
+Writes out the arff file data
+This includes:
+    -Header data, in comments for human readability
+    -File strucutre information, defining our features and output classes
+    -Instance data
+'''
 def output_data(attributes, instance_data, genres):
     # Make sure our output directory is safe
     if not os.path.isdir(OUTPUT_DIR):
@@ -63,10 +70,15 @@ def output_data(attributes, instance_data, genres):
     write_header()
     write_attributes(attributes)
 
-    # Main output loop
+    # Main output loop, actually writing the data
     for genre in genres:
         append_instances(instance_data[genre], genre)
 
+
+'''
+Given a list of extraction modules, builds a list of attribute labels from those modules.
+Because the order of the modules is consistent across the code, we can just iterate over and split the __str__
+'''
 def get_attributes(extraction_modules):
     # Define a list of attributes
     attributes = []
@@ -77,6 +89,10 @@ def get_attributes(extraction_modules):
     return attributes
 
 
+'''
+Reads a random sample from an array of wav file data
+Uses a pre-defined sample length to produce its output
+'''
 def get_random_sample(data, sample_rate):
     # Find how long the song is in seconds
     total_length = data.shape[0] / sample_rate
@@ -87,6 +103,10 @@ def get_random_sample(data, sample_rate):
     return data[start_time * sample_rate:(start_time + SAMPLE_LENGTH) * sample_rate]
 
 
+'''
+Iterates over the provided extraction modules and calls the .extract(...) method.
+Creates a list from the returned data from each module to construct one instance for our dataset
+'''
 def extract_instance(sample, data, sample_rate, extraction_modules):
     features = []
 
@@ -115,19 +135,18 @@ genres = ['pop', 'electronic', 'rap', 'folk', 'rock', 'classical']
 instance_data = dict()
 
 
-# Let's not forget to grab our labels
-# Here we also need to establish the order of extraction
-attributes = []
+# Create instances of each extraction module
 extraction_modules = [Andrew(), Jacob(), Chandra(), Gibson()]
-
+# Read in the module-defined attribute labels
 attributes = get_attributes(extraction_modules)
 
 
-# The following could be refactored a bit more, but I kind of just want to test things
+# Now we're ready to extract our desired features from the data
 
 # Feature extraction loop
 # Iterate over each genre
 for genre in genres:
+    # List to store the instances for this genre
     current_instances = []
 
     # Link to the current resource directory
@@ -150,11 +169,12 @@ for genre in genres:
             # Sanity check on sample length
             assert (sample.shape[0] == (SAMPLE_LENGTH * sample_rate))
 
+            # Extract the values using our modules, and add the instance to our list
             current_instances.append(extract_instance(sample, data, sample_rate, extraction_modules))
         # End sample loop
     # End directory loop
 
-    # Save the data in a cool dictionary
+    # Save the genre instance data in a cool dictionary
     instance_data[genre] = current_instances
 
 
