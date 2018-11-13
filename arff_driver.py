@@ -82,9 +82,7 @@ def get_attributes(extraction_modules):
     for module in extraction_modules:
         attributes.extend(str(module).split(','))  # Add the module-defined attributes to our list
 
-    # Sanitze list
     attributes = [item.strip() for item in attributes]
-
     return attributes
 
 
