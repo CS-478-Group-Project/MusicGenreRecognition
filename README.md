@@ -3,9 +3,9 @@ Machine learning project on music genre recognition
 
 # Driver
 Driver will iterate through all songs. For each song, it will call extract() on each of our classes. It will take the returned features and concatenate them to a list of all features for that song. It will add this list as a row to the .arff file
-- The arguments for extract will be (full song, song section, sampling rate)
-    - full song: full .wav file for current song
+- The arguments for extract will be (song section, full song, sampling rate)
     - song section: section of current songs .wav file
+    - full song: full .wav file for current song
     - sampling rate: integer that corresponds to the number of samples per second of the .wav file
 - The driver will extract the features by calling split(",") on the returned string from str(FeatureClassName)
 
