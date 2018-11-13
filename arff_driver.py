@@ -1,11 +1,7 @@
 import os
 import random
+import importlib
 from scipy.io import wavfile
-from scipy.fftpack import fft,fftfreq   # Likely won't be needed
-from Andrew import Andrew
-from Jacob import Jacob
-from Chandra import Chandra
-from Gibson import Gibson
 
 
 '''
@@ -86,6 +82,7 @@ def get_attributes(extraction_modules):
     for module in extraction_modules:
         attributes.extend(str(module).split(','))  # Add the module-defined attributes to our list
 
+    attributes = [item.strip() for item in attributes]
     return attributes
 
 
@@ -102,6 +99,29 @@ def get_random_sample(data, sample_rate):
     # Feed back the data as a sample given our random start time and constant sample length
     return data[start_time * sample_rate:(start_time + SAMPLE_LENGTH) * sample_rate]
 
+
+'''
+Using the names of 4 amazing people, dynamically loads what modules are available
+'''
+def load_modules(modules):
+    extraction_modules = []
+
+    for module_name in modules:
+        try:
+            module = importlib.import_module(module_name)                   # Load module from file called "Name.py"
+            loaded_class = getattr(module, module_name)                     # Load class from module, with matching name
+            extraction_modules.append(loaded_class())                       # Instantiate instance of class for use
+        except ModuleNotFoundError as not_found:                            # Module not in directory
+            print("Module not found: [" + module_name + "], skipping...")
+        except ImportError as error:                                        # Import failed
+            # Output expected ImportErrors.
+            print("Import of " + module_name + " failed!  This is bad!")
+        except Exception as exception:                                      # Very bad times
+            # Output unexpected Exceptions.
+            print("Unexpected Error!")
+            print(exception)
+
+    return extraction_modules
 
 '''
 Iterates over the provided extraction modules and calls the .extract(...) method.
@@ -134,9 +154,19 @@ genres = ['pop', 'electronic', 'rap', 'folk', 'rock', 'classical']
 # Where we'll store all the computed output data
 instance_data = dict()
 
+# Dynamically load those extraction modules, boiii
+modules = ['Andrew', 'Jacob', 'Chandra', 'Gibson']
 
 # Create instances of each extraction module
-extraction_modules = [Andrew(), Jacob(), Chandra(), Gibson()]
+extraction_modules = load_modules(modules)
+
+# Check to see if any modules were loaded successfully
+if len(extraction_modules) == 0:
+    print("***************************************")
+    print("No Modules loaded successfully, exiting")
+    print("***************************************")
+    exit()
+
 # Read in the module-defined attribute labels
 attributes = get_attributes(extraction_modules)
 
