@@ -1,6 +1,6 @@
 import os
 import random
-from tqdm import tqdm
+# from tqdm import tqdm
 import importlib
 from scipy.io import wavfile
 
@@ -176,7 +176,8 @@ attributes = get_attributes(extraction_modules)
 
 # Feature extraction loop
 # Iterate over each genre
-for genre in tqdm(genres):
+# for genre in tqdm(genres):
+for genre in genres:
     # List to store the instances for this genre
     current_instances = []
 
@@ -186,7 +187,8 @@ for genre in tqdm(genres):
     if not os.path.isdir(current_dir): continue   # Skip this genre if not defined
 
     # Loop over every file in the song directory
-    for file in tqdm(os.listdir(current_dir)):
+    # for file in tqdm(os.listdir(current_dir)):
+    for file in os.listdir(current_dir):
         # Read in audio data and sanitize
         sample_rate, data = wavfile.read(os.path.join(*SONG_DIR, genre, file))
 
@@ -194,7 +196,8 @@ for genre in tqdm(genres):
         if len(data.shape) > 1:
             data = data[:,0]
 
-        for i in tqdm(range(NUM_SAMPLES)):
+        # for i in tqdm(range(NUM_SAMPLES)):
+        for i in range(NUM_SAMPLES):
             # Obtain a random sample
             sample = get_random_sample(data, sample_rate)
 
