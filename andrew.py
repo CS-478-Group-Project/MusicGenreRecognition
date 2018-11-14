@@ -7,9 +7,9 @@ class Andrew:
         pass
 
     def __str__(self):
-        return "Tempo, Total beats, Average beats" \
-                ", MFCC mean, MFCC std, MFCC variance, MFCC delta mean, MFCC delta std, MFCC delta variance" \
-                ", Chroma stft mean, Chroma stft std, chroma stft variance" \
+        return "Tempo, Total_beats, Average_beats"_\
+                ", MFCC_mean, MFCC_std, MFCC_variance, MFCC_delta_mean, MFCC_delta_std, MFCC_delta_variance" \
+                ", Chroma_stft_mean, Chroma_stft_std, chroma_stft_variance" \
 
     """
     :param full: full current song
