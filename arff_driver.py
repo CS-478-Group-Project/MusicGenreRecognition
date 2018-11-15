@@ -24,7 +24,7 @@ def write_attributes(attributes):
         # All attributes are continuous, as far as we've decided... This can easily be modified to accommodate nominal data
         for attribute in attributes:
             fout.write("@attribute ")
-            fout.write(attribute)
+            fout.write(attribute.replace(' ', '_'))
             fout.write(" continuous\n")
 
         # Write the output class data
@@ -189,8 +189,9 @@ for genre in genres:
         # Read in audio data and sanitize
         sample_rate, data = wavfile.read(os.path.join(*SONG_DIR, genre, file))
 
-        # Convert to mono
-        data = data[:,0]
+        # Convert to mono if applicable
+        if len(data.shape) == 2:
+            data = data[:,0]
 
         for i in range(NUM_SAMPLES):
             # Obtain a random sample
