@@ -11,12 +11,15 @@ from statistics import mean, stdev
 
 
 class Gibson:
+    window_size = 8192 # Around about 0.2s window size
+    overlaps_per_window = 4 # 0.05s overlap
 
 
 
     def __init__(self):
         return
 
+    # We may not be doing short time energy anymore...
     def __str__(self):
         return "Zero Crossing Rate, Short Time Energy, Spectral Roll Off, Entropy, Spectral Flux, " \
                 "b1, b2, b3, b4, b5, b6, b7"
@@ -42,12 +45,16 @@ class Gibson:
 
 
     def zcr(self):
-        return
+        # Compute the zero crossing rate for each window
+        zcr_values = [audioFeatureExtraction.stZCR(np.array(window)) for window in overlapped_window(self.section, self.window_size, self.overlaps_per_window)]
+        # Return the mean and standard deviation for our measured zcr values
+        return mean(zcr_values), stdev(zcr_values)
 
     def short_time_energy(self):
         return
 
     def spectral_roll_off(self):
+        return audioFeatureExtraction.stSpectralRollOff(self.section, .5, self.sample_rate)
         return
 
     def spectral_entropy(self):
