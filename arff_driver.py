@@ -3,6 +3,17 @@ import random
 import importlib
 from scipy.io import wavfile
 
+try:
+    from progressbar import ProgressBar
+except:
+    class ProgressBar (object):
+        def __init__(*args, **kwargs):
+            pass
+        def update(self, x):
+            pass
+        def finish(self):
+            pass
+
 
 '''
 Writes the header data for the arff file
@@ -176,6 +187,10 @@ attributes = get_attributes(extraction_modules)
 # Feature extraction loop
 # Iterate over each genre
 for genre in genres:
+    print("\n---------------------------------------")
+    print("Processing Genre: [" + genre + "]")
+    print("---------------------------------------")
+
     # List to store the instances for this genre
     current_instances = []
 
@@ -185,7 +200,13 @@ for genre in genres:
     if not os.path.isdir(current_dir): continue   # Skip this genre if not defined
 
     # Loop over every file in the song directory
-    for file in os.listdir(current_dir):
+    files = os.listdir(current_dir)
+    files_processed = 0
+
+    # Initialize progressbar
+    bar = ProgressBar(max_value=len(files))
+
+    for file in files:
         # Read in audio data and sanitize
         sample_rate, data = wavfile.read(os.path.join(*SONG_DIR, genre, file))
 
@@ -203,7 +224,14 @@ for genre in genres:
             # Extract the values using our modules, and add the instance to our list
             current_instances.append(extract_instance(sample, data, sample_rate, extraction_modules))
         # End sample loop
+
+        # Update our progressbar
+        files_processed += 1
+        bar.update(files_processed)
     # End directory loop
+
+    # Finish the progress bar
+    bar.finish()
 
     # Save the genre instance data in a cool dictionary
     instance_data[genre] = current_instances
