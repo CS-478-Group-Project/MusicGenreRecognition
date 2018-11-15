@@ -15,8 +15,6 @@ class Gibson:
     window_size = 8192 # Around about 0.2s window size, given sampling rate of 48000
     overlaps_per_window = 4 # 0.05s overlap
 
-
-
     def __init__(self):
         return
 
@@ -43,6 +41,8 @@ class Gibson:
 
         # hasattr(x, '__iter__') might be useful
 
+
+        # Let's extract some features!
         features = []
 
         features.extend(list(self.zcr()))           # Returns a tuple, must extend
@@ -51,11 +51,12 @@ class Gibson:
         features.append(self.spectral_flux())       # Append mean spectral flux
 
         band_energy_ratios, band_energy_sums, band_ratio_stdev, band_sum_stdev = self.frequency_bins()
-        features.extend(band_energy_ratios)
-        features.append(band_ratio_stdev)
-        features.append(band_sum_stdev)
+        features.extend(band_energy_ratios)         # Extend with the band energy ratios
+        features.append(band_ratio_stdev)           # Append band energy ratio standard deviation
+        features.append(band_sum_stdev)             # Append band energy sum standard deviation
 
-        assert (len(str(self).split(',')) == len(features)) # Enforce feature length correctly
+        # Enforce feature length is consistent with __str__
+        assert (len(str(self).split(',')) == len(features))
 
         return features
 
@@ -67,10 +68,13 @@ class Gibson:
         return mean(zcr_values), stdev(zcr_values)
 
     def short_time_energy(self):
+        # Big yikes
         raise NotImplementedError("Short time energy not implemented!")
         return
 
     def spectral_roll_off(self):
+        # Easy one liner for computing spectral roll off
+        # In testing I found that 0.5 gave good values.  Any higher or lower and the value ended up being very clustered
         return audioFeatureExtraction.stSpectralRollOff(self.section, .5, self.sampling_rate)
 
     def spectral_entropy(self):
