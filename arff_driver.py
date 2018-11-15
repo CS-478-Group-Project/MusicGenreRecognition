@@ -35,7 +35,7 @@ def write_attributes(attributes):
         # All attributes are continuous, as far as we've decided... This can easily be modified to accommodate nominal data
         for attribute in attributes:
             fout.write("@attribute ")
-            fout.write(attribute.replace(' ', '_'))
+            fout.write(attribute.strip().replace(' ', '_'))
             fout.write(" continuous\n")
 
         # Write the output class data
