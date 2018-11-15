@@ -1,3 +1,4 @@
 youtube_dl>=2018.11.7
 requests>=2.20.0
 progressbar2>=3.38.0
+ffmpeg>=1.4
