@@ -6,8 +6,14 @@ from scipy.signal import freqz
 from scipy.fftpack import fft,fftfreq
 import librosa
 
+from windowing import overlapped_window
+from statistics import mean, stdev
+
 
 class Gibson:
+
+
+
     def __init__(self):
         return
 
@@ -20,23 +26,40 @@ class Gibson:
         self.full_song = full_song
         self.sampling_rate = sampling_rate
 
-        return [1,2,3]
+        # Convert sample to frequency domain for cool stuff :)
+        self.section_fft = abs(fft(section))
+
+        # hasattr(x, '__iter__') might be useful
+
+        features = []
+
+        features.append(self.zcr())
 
 
-    def zcr():
+        assert (len(str(self).split(',')) == len(features)) # Enforce feature length correctly
+
+        return features
+
+
+    def zcr(self):
         return
 
-    def short_time_energy():
+    def short_time_energy(self):
         return
 
-    def spectral_roll_off():
+    def spectral_roll_off(self):
         return
 
-    def entropy():
-        return
+    def spectral_entropy(self):
+        # Use the library's spectral energy computation
+        return audioFeatureExtraction.stSpectralEntropy(self.section_fft)
 
-    def spectral_flux():
-        return
+    def spectral_flux(self):
+        # Computes the average spectral flux given a sample
+        flux_values = [audioFeatureExtraction.stSpectralFlux(self.section_fft[i + 1], self.section_fft[i]) for i in range(len(self.section_fft) - 1)]
 
-    def frequency_bins():
+        # Returns the mean spectral flux across all frames
+        return mean(flux_values)
+
+    def frequency_bins(self):
         return
