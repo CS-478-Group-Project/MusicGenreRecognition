@@ -11,7 +11,8 @@ from statistics import mean, stdev
 
 
 class Gibson:
-    window_size = 8192 # Around about 0.2s window size
+    # Define some cool constants that will be used during feature extraction
+    window_size = 8192 # Around about 0.2s window size, given sampling rate of 48000
     overlaps_per_window = 4 # 0.05s overlap
 
 
@@ -28,6 +29,14 @@ class Gibson:
         self.section = section
         self.full_song = full_song
         self.sampling_rate = sampling_rate
+        self.bands = [              # Bands for rough instrument representation
+                        [0, 200],
+                        [200, 500],
+                        [300, 700],
+                        [700, 1600],
+                        [1500, 3200],
+                        [3200, int(sampling_rate / 2)]
+        ]
 
         # Convert sample to frequency domain for cool stuff :)
         self.section_fft = abs(fft(section))
@@ -54,8 +63,7 @@ class Gibson:
         return
 
     def spectral_roll_off(self):
-        return audioFeatureExtraction.stSpectralRollOff(self.section, .5, self.sample_rate)
-        return
+        return audioFeatureExtraction.stSpectralRollOff(self.section, .5, self.sampling_rate)
 
     def spectral_entropy(self):
         # Use the library's spectral energy computation
@@ -68,5 +76,40 @@ class Gibson:
         # Returns the mean spectral flux across all frames
         return mean(flux_values)
 
+    # Something to note, is that the last bin seems to (almost) always be 0
+    # We can get rid of that last bin if it turns out to not give us any info
     def frequency_bins(self):
-        return
+        band_energy_ratios = [[] for band in self.bands]
+        band_energy_sums = [[] for band in self.bands]
+
+        for window in overlapped_window(self.section, self.window_size, self.overlaps_per_window):
+            # total_window_energy = audioFeatureExtraction.stEnergy(np.array(window))
+
+            # Convert to frequency domain
+            fft_window = abs(fft(window, self.sampling_rate))
+            fft_window = fft_window[:int(len(window) / 2)]
+            window_sum = sum(fft_window)
+
+            # Create our frequency bins
+            freq_bin_data = []
+            for band in self.bands:
+                current_bin = np.zeros(fft_window.shape[0])                 # Start with all zeros
+                current_bin[band[0]:band[1]] = fft_window[band[0]:band[1]]  # Copy a band of data
+                freq_bin_data.append(current_bin)                           # Add to our list
+
+            # For each frequency bin, extract its energy ratio and total energy
+            for i in range(len(freq_bin_data)):
+                current_sum = sum(freq_bin_data[i])
+                band_energy_ratios[i].append(current_sum / window_sum)
+                band_energy_sums[i].append(current_sum)
+
+        # Average the ratio data!
+        band_energy_ratios = [mean(band_ratio) for band_ratio in band_energy_ratios]
+        band_energy_sums = [mean(band_sum) for band_sum in band_energy_sums]
+
+        # Compute standard deviation b/c why not
+        band_ratio_stdev = stdev(band_energy_ratios)
+        band_sum_stdev = stdev(band_energy_sums)
+
+        # Return our stuff?
+        return band_energy_ratios, band_energy_sums, band_ratio_stdev, band_sum_stdev
