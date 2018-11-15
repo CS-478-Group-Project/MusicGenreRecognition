@@ -22,20 +22,20 @@ class Gibson:
 
     # We may not be doing short time energy anymore...
     def __str__(self):
-        return "Zero Crossing Rate, Short Time Energy, Spectral Roll Off, Entropy, Spectral Flux, " \
-                "b1, b2, b3, b4, b5, b6, b7"
+        return "Mean ZCR, ZCR StdDev, Spectral Roll Off, Spectral Entropy, Mean Spectral Flux, " \
+                "b1, b2, b3, b4, b5, b6, Band Ratio StdDev, Band Energy StdDev"
 
     def extract(self, section, full_song, sampling_rate):
         self.section = section
         self.full_song = full_song
         self.sampling_rate = sampling_rate
-        self.bands = [              # Bands for rough instrument representation
-                        [0, 200],
-                        [200, 500],
-                        [300, 700],
-                        [700, 1600],
-                        [1500, 3200],
-                        [3200, int(sampling_rate / 2)]
+        self.bands = [                  # Bands for rough instrument representation
+                        [0, 200],       # b1
+                        [200, 500],     # b2
+                        [300, 700],     # b3
+                        [700, 1600],    # b4
+                        [1500, 3200],   # b5
+                        [3200, int(sampling_rate / 2)]  # b6
         ]
 
         # Convert sample to frequency domain for cool stuff :)
@@ -45,8 +45,15 @@ class Gibson:
 
         features = []
 
-        features.append(self.zcr())
+        features.extend(list(self.zcr()))           # Returns a tuple, must extend
+        features.append(self.spectral_roll_off())   # Append roll off
+        features.append(self.spectral_entropy())    # Append spectral entropy
+        features.append(self.spectral_flux())       # Append mean spectral flux
 
+        band_energy_ratios, band_energy_sums, band_ratio_stdev, band_sum_stdev = self.frequency_bins()
+        features.extend(band_energy_ratios)
+        features.append(band_ratio_stdev)
+        features.append(band_sum_stdev)
 
         assert (len(str(self).split(',')) == len(features)) # Enforce feature length correctly
 
@@ -60,6 +67,7 @@ class Gibson:
         return mean(zcr_values), stdev(zcr_values)
 
     def short_time_energy(self):
+        raise NotImplementedError("Short time energy not implemented!")
         return
 
     def spectral_roll_off(self):
