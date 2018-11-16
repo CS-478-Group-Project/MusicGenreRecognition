@@ -192,9 +192,8 @@ for genre in genres:
         # Read in audio data and sanitize
         sample_rate, data = wavfile.read(os.path.join(*SONG_DIR, genre, file))
 
-        # Convert to mono if not already
-        if len(data.shape) > 1:
-            data = data[:,0]
+        # Convert to mono
+        data = data[:,0]
 
         # for i in tqdm(range(NUM_SAMPLES)):
         for i in range(NUM_SAMPLES):
