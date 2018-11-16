@@ -69,8 +69,6 @@ os.chdir(DIR_PREFIX)
 default_count = config['default_count']
 
 for playlist in config['items']:
-    print("Beginning dowload of playlist: " +  playlist_id + " [" + genre + "]\n")
-
     # read some stuff from the JSON data
     playlist_id = playlist['playlist_id']
     genre = playlist['genre']
@@ -92,6 +90,8 @@ for playlist in config['items']:
 
     os.chdir(genre)
 
+    print("Beginning dowload of playlist: " +  playlist_id + " [" + genre + "]\n")
+  
     # Download each item from the playlist
     downloadPlaylist(json_data, num_songs)
 
