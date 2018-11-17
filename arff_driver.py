@@ -1,5 +1,6 @@
 import os
 import random
+# from tqdm import tqdm
 import importlib
 from scipy.io import wavfile
 
@@ -186,6 +187,7 @@ attributes = get_attributes(extraction_modules)
 
 # Feature extraction loop
 # Iterate over each genre
+# for genre in tqdm(genres):
 for genre in genres:
     print("\n---------------------------------------")
     print("Processing Genre: [" + genre + "]")
@@ -214,6 +216,7 @@ for genre in genres:
         if len(data.shape) == 2:
             data = data[:,0]
 
+        # for i in tqdm(range(NUM_SAMPLES)):
         for i in range(NUM_SAMPLES):
             # Obtain a random sample
             sample = get_random_sample(data, sample_rate)
