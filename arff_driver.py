@@ -58,7 +58,9 @@ def append_instances(instances, genre):
     # Open output file in append mode.
     with open(os.path.join(OUTPUT_DIR ,OUTPUT_FILE), 'a') as fout:
         for instance in instances:
-            fout.write(', '.join(str(feature_val) for feature_val in instance))  # Write the data
+            instance_data = ', '.join(str(feature_val) for feature_val in instance)
+            if 'nan' in instance_data: continue # Don't mind
+            fout.write(instance_data)  # Write the data
             fout.write(', ' + genre + '\n')                                      # Give output class
 
     return
@@ -157,7 +159,7 @@ OUTPUT_FILE = 'music.arff'      # Specific file name we're writing to
 
 SONG_DIR = ['res', 'songs']     # Where the subfolders for each genre are stored
 
-SAMPLE_LENGTH = 8               # Length of samples to be used
+SAMPLE_LENGTH = 5               # Length of samples to be used
 NUM_SAMPLES = 5                 # How many samples should be extracted from each file
 
 # Define genres
@@ -203,10 +205,10 @@ for genre in genres:
 
     # Loop over every file in the song directory
     files = os.listdir(current_dir)
-    files_processed = 0
+    samples_processed = 0
 
     # Initialize progressbar
-    bar = ProgressBar(max_value=len(files))
+    bar = ProgressBar(max_value=len(files * NUM_SAMPLES))
 
     for file in files:
         # Read in audio data and sanitize
@@ -226,11 +228,11 @@ for genre in genres:
 
             # Extract the values using our modules, and add the instance to our list
             current_instances.append(extract_instance(sample, data, sample_rate, extraction_modules))
-        # End sample loop
 
-        # Update our progressbar
-        files_processed += 1
-        bar.update(files_processed)
+            # Update our progressbar
+            samples_processed += 1
+            bar.update(samples_processed)
+        # End sample loop
     # End directory loop
 
     # Finish the progress bar
