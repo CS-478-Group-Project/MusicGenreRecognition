@@ -5,6 +5,7 @@ from scipy.signal import butter, lfilter
 from scipy.signal import freqz
 from scipy.fftpack import fft,fftfreq
 import librosa
+import random
 
 from windowing import overlapped_window
 from statistics import mean, stdev
@@ -12,16 +13,17 @@ from statistics import mean, stdev
 
 class Gibson:
     # Define some cool constants that will be used during feature extraction
-    window_size = 8192 # Around about 0.2s window size, given sampling rate of 48000
-    overlaps_per_window = 4 # 0.05s overlap
+    window_size = 16384 #8192 # Around about 0.2s window size, given sampling rate of 48000
+    overlaps_per_window = 1 # 0.05s overlap
 
     def __init__(self):
         return
 
     # We may not be doing short time energy anymore...
     def __str__(self):
-        return "Mean ZCR, ZCR StdDev, Spectral Roll Off, Spectral Entropy, Mean Spectral Flux, " \
-                "b1, b2, b3, b4, b5, b6, Band Ratio StdDev, Band Energy StdDev"
+        return "Mean ZCR, ZCR StdDev, Spectral Roll Off, Spectral Entropy, Mean Spectral Flux, Flux StdDev" \
+                ", b1, b2, b3, b4, b5, b6, Band Ratio StdDev" \
+                ", s1, s2, s3, s4, s5, s6, Band Energy Mean, Band Energy StdDev"
 
     def extract(self, section, full_song, sampling_rate):
         self.section = section
@@ -39,20 +41,19 @@ class Gibson:
         # Convert sample to frequency domain for cool stuff :)
         self.section_fft = abs(fft(section))
 
-        # hasattr(x, '__iter__') might be useful
-
-
         # Let's extract some features!
         features = []
 
         features.extend(list(self.zcr()))           # Returns a tuple, must extend
         features.append(self.spectral_roll_off())   # Append roll off
         features.append(self.spectral_entropy())    # Append spectral entropy
-        features.append(self.spectral_flux())       # Append mean spectral flux
+        features.extend(list(self.spectral_flux())) # Append mean spectral flux and flux standard deviation
 
-        band_energy_ratios, band_energy_sums, band_ratio_stdev, band_sum_stdev = self.frequency_bins()
+        band_energy_ratios, band_energy_sums, band_ratio_stdev, band_sum_mean, band_sum_stdev = self.frequency_bins()
         features.extend(band_energy_ratios)         # Extend with the band energy ratios
         features.append(band_ratio_stdev)           # Append band energy ratio standard deviation
+        features.extend(band_energy_sums)           # Extend with the band energy sums
+        features.append(band_sum_mean)              # Append band sum mean
         features.append(band_sum_stdev)             # Append band energy sum standard deviation
 
         # Enforce feature length is consistent with __str__
@@ -64,6 +65,7 @@ class Gibson:
     def zcr(self):
         # Compute the zero crossing rate for each window
         zcr_values = [audioFeatureExtraction.stZCR(np.array(window)) for window in overlapped_window(self.section, self.window_size, self.overlaps_per_window)]
+        # return [audioFeatureExtraction.stZCR(self.section)]
         # Return the mean and standard deviation for our measured zcr values
         return mean(zcr_values), stdev(zcr_values)
 
@@ -82,11 +84,17 @@ class Gibson:
         return audioFeatureExtraction.stSpectralEntropy(self.section_fft)
 
     def spectral_flux(self):
-        # Computes the average spectral flux given a sample
-        flux_values = [audioFeatureExtraction.stSpectralFlux(self.section_fft[i + 1], self.section_fft[i]) for i in range(len(self.section_fft) - 1)]
+        # Create some random tuple samples
+        frame_pairs = []
+        for i in range(100):
+            frame_index = random.randint(1, len(self.section_fft) - 1)
+            frame_pairs.append([self.section_fft[frame_index], self.section_fft[frame_index - 1]])
+
+        # Computes the average spectral flux given paris of sample frames
+        flux_values = [audioFeatureExtraction.stSpectralFlux(frame, prev) for frame, prev in frame_pairs]
 
         # Returns the mean spectral flux across all frames
-        return mean(flux_values)
+        return mean(flux_values), stdev(flux_values)
 
     # Something to note, is that the last bin seems to (almost) always be 0
     # We can get rid of that last bin if it turns out to not give us any info
@@ -123,5 +131,7 @@ class Gibson:
         band_ratio_stdev = stdev(band_energy_ratios)
         band_sum_stdev = stdev(band_energy_sums)
 
+        band_sum_mean = mean(band_energy_sums)
+
         # Return our stuff?
-        return band_energy_ratios, band_energy_sums, band_ratio_stdev, band_sum_stdev
+        return band_energy_ratios, band_energy_sums, band_ratio_stdev, band_sum_mean, band_sum_stdev
