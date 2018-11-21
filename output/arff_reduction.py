@@ -6,6 +6,7 @@ import numpy as np
 import re
 import sys
 import os
+from functools import reduce
 
 class Matrix:
     """
@@ -39,7 +40,7 @@ class Matrix:
         if len(self.features_to_remove) >= (len(self.attr_names) - 2):
             raise ValueError("Cannot add feature, must retain at least one feature for output.  Selected to remove: " + str(self.features_to_remove))
 
-        print("Adding feature [{}] to elimiation list.".format(self.attr_names[feature]))
+        # print("Adding feature [{}] to elimiation list.".format(self.attr_names[feature]))
 
         self.features_to_remove.append(feature)
 
@@ -107,7 +108,7 @@ class Matrix:
                             attr_name = attr_def[:attr_def.index("'")]
                             attr_def = attr_def[attr_def.index("'")+1:].strip()
                         else:
-                            search = re.search(r'(\w*)\s*({.*})', attr_def)
+                            search = re.search(r'(\w*)\s+({.*}|\w+)', attr_def)
                             attr_name = search.group(1)
                             attr_def = search.group(2)
                             # Remove white space from atribute values
@@ -214,16 +215,16 @@ class Matrix:
 
 def print_commands():
     # Print out the api
-    print("\n*********************************")
+    print("\n***********************************")
     print(" Arff Feature Reduction")
     print(" ----------------------")
-    print(" #   - select feature to remove")
-    print(" w   - quit and write to file")
-    print(" x   - quit without writing")
-    print(" r/c - clear selected features ")
-    print(" p   - print original arff header")
-    print(" h/a - print commands")
-    print("*********************************\n")
+    print(" # #...  - select features to remove")
+    print(" w       - quit and write to file")
+    print(" x       - quit without writing")
+    print(" r/c     - clear selected features ")
+    print(" p       - print original arff header")
+    print(" h/a     - print commands")
+    print("************************************\n")
 
 
 if len(sys.argv) < 3:
@@ -253,24 +254,18 @@ print()
 
 # Start main input loop
 while True:
-    user_input = input("Please enter an attribute number or command: ")
-    if user_input.isdigit() and not '.' in user_input:
-        user_input = int(user_input)
-        feature_info = original_matrix.get_attr_info(user_input)
-        confirmation = input("Do you want to remove feature {} ?  (Y/n): ".format(feature_info))
-        print()
+    user_input = ""
+    while True:
+        user_input = input("Please enter an attribute number or command: ")
+        user_input = user_input.strip()
+        if len(user_input) > 0: break
 
-        confirmation = confirmation.lower()
+    user_input = user_input.split()
 
-        # length 0 implies it's the default choice
-        if confirmation in "yes" or len(confirmation) < 1:
-            try:
-                original_matrix.add_feature_to_remove(user_input)
-                # print("Removi {}".format(feature_info))
-            except ValueError as e:
-                print(e)
+    if len(user_input) == 1 and user_input[0].isalpha():
+        user_input = user_input[0]
 
-    else:
+        # Do the regular command processing
         # Handle API
         user_input = user_input.lower()
         if user_input in "w":
@@ -284,6 +279,7 @@ while True:
         elif user_input in "rc":
             print("Clearing selected features")
             original_matrix.reset_features_to_remove()
+            continue
         elif user_input in "p":
             original_matrix.print()
             continue
@@ -295,7 +291,22 @@ while True:
             print("Enter \'h\' for help.")
             continue
 
+    # Check to see if they entered all numbers
+    if reduce((lambda x, y: x and y.isdigit() and not '.' in y), user_input):
+        print()
+        # Handle feature removal
+        user_input = [int(val) for val in user_input]
+        description = [original_matrix.get_attr_info(index) for index in user_input]
+
+        for feature in user_input:
+            try:
+                original_matrix.add_feature_to_remove(feature)
+                print("Removing feature: {}".format(original_matrix.get_attr_info(feature)))
+            except ValueError as e:
+                print(e)
+
     print("Currently Selected Features: " + str(original_matrix.get_features_to_remove()))
+    print()
 
 
 
