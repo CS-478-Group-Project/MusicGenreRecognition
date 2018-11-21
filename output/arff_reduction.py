@@ -215,7 +215,7 @@ class Matrix:
 
 def print_commands():
     # Print out the api
-    print("\n***********************************")
+    print("\n************************************")
     print(" Arff Feature Reduction")
     print(" ----------------------")
     print(" # #...  - select features to remove")
@@ -224,7 +224,7 @@ def print_commands():
     print(" r/c     - clear selected features ")
     print(" p       - print original arff header")
     print(" h/a     - print commands")
-    print("************************************\n")
+    print("*************************************\n")
 
 
 if len(sys.argv) < 3:
@@ -255,17 +255,18 @@ print()
 # Start main input loop
 while True:
     user_input = ""
+    # Input loop, waits for valid entry
     while True:
         user_input = input("Please enter an attribute number or command: ")
         user_input = user_input.strip()
         if len(user_input) > 0: break
 
+    # Split pieces (to accommodate multiple feature entries on one line)
     user_input = user_input.split()
 
-    if len(user_input) == 1 and user_input[0].isalpha():
-        user_input = user_input[0]
+    if len(user_input) == 1 and user_input[0].isalpha():    # They entered a command
+        user_input = user_input[0]                          # Extract the command
 
-        # Do the regular command processing
         # Handle API
         user_input = user_input.lower()
         if user_input in "w":
@@ -304,12 +305,8 @@ while True:
                 print("Removing feature: {}".format(original_matrix.get_attr_info(feature)))
             except ValueError as e:
                 print(e)
+    else:
+        print("Invalid Feature Selection Format!")
 
     print("Currently Selected Features: " + str(original_matrix.get_features_to_remove()))
     print()
-
-
-
-
-# Write that young data!
-# original_matrix.write_to_file(destination_file)
