@@ -7,7 +7,7 @@ class Andrew:
         pass
 
     def __str__(self):
-        return "Tempo, Total_beats, Average_beats"_\
+        return "Tempo, Total_beats, Average_beats" \
                 ", MFCC_mean, MFCC_std, MFCC_variance, MFCC_delta_mean, MFCC_delta_std, MFCC_delta_variance" \
                 ", Chroma_stft_mean, Chroma_stft_std, chroma_stft_variance" \
 
@@ -46,7 +46,7 @@ class Andrew:
     :return: The MFCC features
     :rtype: list of floats
 
-    An MFC is a representation of the shortterm power spectrum of a sound based on a 
+    An MFC is a representation of the shortterm power spectrum of a sound based on a
     log power spectrums linear cosine transform on a nonlinear mel scale of frequency...
     """
     def MFCC(self):
