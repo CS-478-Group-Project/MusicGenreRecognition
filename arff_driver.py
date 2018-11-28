@@ -37,7 +37,7 @@ def write_attributes(attributes):
         for attribute in attributes:
             fout.write("@attribute ")
             fout.write(attribute.strip().replace(' ', '_'))
-            fout.write(" continuous\n")
+            fout.write(" real\n")
 
         # Write the output class data
         fout.write("@attribute genre {")
@@ -163,7 +163,7 @@ SAMPLE_LENGTH = 5               # Length of samples to be used
 NUM_SAMPLES = 5                 # How many samples should be extracted from each file
 
 # Define genres
-genres = ['pop', 'electronic', 'rap', 'folk', 'rock', 'classical']
+genres = ['electro', 'jazz', 'rap', 'folk', 'rock', 'classical']    # Cooler genres for cooler cats :)
 
 # Where we'll store all the computed output data
 instance_data = dict()
