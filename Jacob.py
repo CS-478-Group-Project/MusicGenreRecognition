@@ -25,7 +25,7 @@ class Jacob:
         return [median_bandwidth, bandwidth_variance, bandwidth_std]
 
     def extract(self, section, full, sr):
-        frame_length = section.shape[0]
+        frame_length = 8192 # Reduced frame length to help with computation speed
         features = []
         features += self.rmse(section, frame_length)
         features += self.bandwidth(section, sr)
